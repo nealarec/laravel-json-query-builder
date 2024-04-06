@@ -27,6 +27,7 @@ class SearchParameterTest extends TestCase
         $this->modelConfig = Mockery::mock(ModelConfig::class);
         $this->modelConfig->shouldReceive('getForbidden')->andReturn([]);
         $this->modelConfig->shouldReceive('getModelColumns')->andReturn([]);
+        $this->modelConfig->shouldReceive('isPrimaryKey')->andReturn(false);
     }
 
     protected function createSearchParameter(array $arguments): SearchParameter

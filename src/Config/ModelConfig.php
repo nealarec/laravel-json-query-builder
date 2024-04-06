@@ -20,7 +20,25 @@ class ModelConfig
     public function __construct(Model $model)
     {
         $this->model = $model;
-        $this->config = $this->hasConfig() ? $this->getConfig() : [];
+$this->config = $this->hasConfig() ? $this->getConfig() : [];
+
+    }
+
+
+    public function getPrimaryColumn(): string {
+        $table = $this->model->getTable();
+        $primaryKey = $this->model->getKeyName();
+        return $table. '.'. $primaryKey;
+    }
+
+    /**
+     * @param string $column
+     *
+     * @return bool
+     */
+    public function isPrimaryKey($column): bool
+    {
+        return $this->model->getKeyName() === $column;
     }
 
     public function hasConfig(): bool

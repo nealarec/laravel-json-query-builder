@@ -139,7 +139,7 @@ class JsonQueryTest extends TestCase
         $jsonQuery = new JsonQuery($this->builder, $input);
         $jsonQuery->search();
 
-        $sql = 'select * from "test" where ((("id" in (?)) or ("id" in (?))))';
+        $sql = 'select * from "test" where ((("test"."id" in (?)) or ("test"."id" in (?))))';
 
         $this->assertEquals($sql, $this->builder->toSql());
     }
@@ -156,7 +156,7 @@ class JsonQueryTest extends TestCase
         $jsonQuery = new JsonQuery($this->builder, $input);
         $jsonQuery->search();
 
-        $sql = 'select * from "test" where ((("id" in (?) and "id" in (?))))';
+        $sql = 'select * from "test" where ((("test"."id" in (?) and "test"."id" in (?))))';
 
         $this->assertEquals($sql, $this->builder->toSql());
     }
@@ -317,7 +317,28 @@ class JsonQueryTest extends TestCase
         $jsonQuery = new JsonQuery($this->builder, $input);
         $jsonQuery->search();
 
-        $sql = 'select * from "test" where ((((("id" in (?)) or ("id" in (?))) and (("name" in (?)))) or ((("id" in (?))) and (("name" LIKE ? and "name" LIKE ?)))) and ((("we" in (?)))) or (("love" < ?)) or (("recursion" in (?))))';
+        $sql = 'select * from "test" where ((((("test"."id" in (?)) or ("test"."id" in (?))) and (("name" in (?)))) or ((("test"."id" in (?))) and (("name" LIKE ? and "name" LIKE ?)))) and ((("we" in (?)))) or (("love" < ?)) or (("recursion" in (?))))';
+
+        $this->assertEquals($sql, $this->builder->toSql());
+    }
+
+    /** @test */
+    public function can_query_by_many_to_many_relationships()
+    {
+        $input = [
+            'search' => [
+                'tags' => [
+                    "search" => [
+                        "id" => "=1",
+                    ],
+                ],
+            ],
+        ];
+
+        $jsonQuery = new JsonQuery($this->builder, $input);
+        $jsonQuery->search();
+
+        $sql = 'select * from "test" where (exists (select * from "tags" inner join "taggables" on "tags"."id" = "taggables"."tag_id" where "test"."id" = "taggables"."taggable_id" and "taggables"."taggable_type" = ? and ((("tags"."id" in (?))))))';
 
         $this->assertEquals($sql, $this->builder->toSql());
     }

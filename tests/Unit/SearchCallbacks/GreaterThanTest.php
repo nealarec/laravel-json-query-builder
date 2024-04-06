@@ -27,6 +27,7 @@ class GreaterThanTest extends TestCase
         $this->searchParser = Mockery::mock(SearchParser::class);
         $this->searchParser->type = 'test';
         $this->searchParser->column = 'test';
+        $this->searchParser->shouldReceive('isModelRelation')->andReturn(false);
     }
 
     /** @test */

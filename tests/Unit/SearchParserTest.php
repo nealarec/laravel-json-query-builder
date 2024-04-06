@@ -24,6 +24,7 @@ class SearchParserTest extends TestCase
         $modelConfig->shouldReceive('getModelColumns')->andReturn([
             'test' => 'string',
         ]);
+        $modelConfig->shouldReceive('isPrimaryKey')->andReturn(false);
 
         $this->searchParser = new SearchParser(
             $modelConfig, new OperatorsConfig(), 'test', '=123;456');

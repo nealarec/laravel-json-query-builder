@@ -40,7 +40,8 @@ class SearchParser implements SearchParserInterface
     public function __construct(ModelConfig $modelConfig, OperatorsConfig $operatorsConfig, string $column, string $argument)
     {
         $this->modelConfig = $modelConfig;
-        $this->column = $column;
+        $this->column = $modelConfig->isPrimaryKey($column) ? 
+            $modelConfig->getPrimaryColumn() : $column;
         $this->argument = $argument;
 
         $this->checkForForbiddenColumns();
@@ -49,6 +50,20 @@ class SearchParser implements SearchParserInterface
         $arguments = str_replace($this->operator, '', $this->argument);
         $this->values = $this->splitValues($arguments);
         $this->type = $this->getColumnType();
+    }
+
+    /**
+     * @return bool
+     *
+     * @throws JsonQueryBuilderException
+     */
+    public function isModelRelation(): bool
+    {
+        if (!str_contains($this->column, '.')) {
+            return false;
+        }
+        $relation = explode('.', $this->column)[0];
+        return in_array($relation, $this->modelConfig->getRelations());
     }
 
     /**

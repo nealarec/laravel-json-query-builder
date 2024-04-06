@@ -38,7 +38,7 @@ abstract class AbstractCallback
         $this->categorizedValues = new CategorizedValues($this->searchParser);
 
         $this->builder->when(
-            str_contains($this->searchParser->column, '.'),
+            $this->searchParser->isModelRelation(),
             function (Builder $builder) {
                 // Hack for whereDoesntHave relation, doesn't work recursively.
                 if (str_contains($this->searchParser->column, '!') !== false) {
