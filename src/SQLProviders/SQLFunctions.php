@@ -21,10 +21,19 @@ class SQLFunctions
 
     final public static function validateArgument(string $argument): void
     {
+        $columnRegex = "/^(((_*)?([A-Za-z0-9]+))+|\*)$/";
+        if(strpos($argument, " as ")) {
+            [$argument, $alias] = explode(" as ", $argument);
+            if(!preg_match($columnRegex, $alias)) {
+                throw new JsonQueryBuilderException(
+                    "Invalid alias name: {$alias}."
+                ); 
+            }
+        }
+
         $split = explode(':', $argument);
         $column = array_pop($split);
-
-        if (!preg_match("/^[a-zA-Z_][a-zA-Z0-9_]*|\*$/", $column) || in_array($column, self::DB_FUNCTIONS)) {
+        if (!preg_match($columnRegex, $column) || in_array($column, self::DB_FUNCTIONS)) {
             throw new JsonQueryBuilderException(
                 "Invalid column name: {$column}."
             );

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 trait DatabaseFunctions
 {
     public Builder $builder;
+    public $alias;
 
     protected array $providers = [
         'pgsql' => PgSQLFunctions::class,
@@ -28,13 +29,15 @@ trait DatabaseFunctions
         $column = array_pop($params);
         $provider = $this->builder->getModel()->connection ?? config('database.default');
         $functions = $this->providers[$provider] ?? SQLFunctions::class;
+        if (strpos($column, " as ")) {
+            [$column, $this->alias] = explode(" as ", $column);
+        }
 
         return array_reduce(array_reverse($params), function ($query, $param) use (
             $column,
             $functions
         ) {
             $stat = $query ?? ('*' !== $column ? "\"$column\"" : $column);
-
             return $functions::$param($stat);
         });
     }
@@ -47,8 +50,9 @@ trait DatabaseFunctions
             }
             $split = explode(':', $argument);
             $apply = $this->applyAggregation($split);
-            $alias = join('_', array_filter($split, fn ($s) => '*' !== $s));
 
+            if(last($split) === '*') array_pop($split);
+            $alias = $this->alias ?? join('_', $split);
             return DB::raw("{$apply} as {$alias}");
         }, $this->arguments);
     }

@@ -81,4 +81,11 @@ class DatabaseFunctionsTest extends TestCase
         $this->assertNull($parameter->run());
         $this->assertEquals('select count(*) as count', $this->builder->toSql());
     }
+
+    function test_it_should_use_the_right_alias_parameter()  {
+        app('config')->set('database.default', 'pgsql');
+        $parameter = new TestParameterClass(['avg:day:column as the_avg'], $this->builder, $this->modelConfig); 
+        $this->assertNull($parameter->run());
+        $this->assertEquals('select avg(EXTRACT(DAY FROM "column")) as the_avg', $this->builder->toSql());
+    }
 }
