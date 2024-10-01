@@ -26,6 +26,7 @@ class SearchParser implements SearchParserInterface
 
     private string      $argument;
     private ModelConfig $modelConfig;
+    private bool $from_primary_key;
 
     /**
      * Search constructor.
@@ -40,8 +41,8 @@ class SearchParser implements SearchParserInterface
     public function __construct(ModelConfig $modelConfig, OperatorsConfig $operatorsConfig, string $column, string $argument)
     {
         $this->modelConfig = $modelConfig;
-        $this->column = $modelConfig->isPrimaryKey($column) ? 
-            $modelConfig->getPrimaryColumn() : $column;
+        $this->from_primary_key = $modelConfig->isPrimaryKey($column);
+        $this->column = $this->from_primary_key ? $modelConfig->getPrimaryColumn(): $column;
         $this->argument = $argument;
 
         $this->checkForForbiddenColumns();
@@ -59,11 +60,8 @@ class SearchParser implements SearchParserInterface
      */
     public function isModelRelation(): bool
     {
-        if (!str_contains($this->column, '.')) {
-            return false;
-        }
-        $relation = explode('.', $this->column)[0];
-        return in_array($relation, $this->modelConfig->getRelations());
+
+        return str_contains($this->column, '.')  && !$this->from_primary_key;
     }
 
     /**
