@@ -162,7 +162,11 @@ class ModelConfig
      */
     protected function registerEnumTypeForDoctrine($connection): void
     {
-        if (!class_exists('Doctrine\DBAL\Driver\AbstractSQLiteDriver')) {
+        if (
+            !class_exists('Doctrine\DBAL\Driver\AbstractSQLiteDriver') ||
+            !method_exists($connection, 'getDoctrineSchemaManager') &&
+            !method_exists($connection, 'createSchemaManager')
+        ) {
             return;
         }
 
