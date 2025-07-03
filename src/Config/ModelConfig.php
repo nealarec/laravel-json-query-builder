@@ -20,15 +20,15 @@ class ModelConfig
     public function __construct(Model $model)
     {
         $this->model = $model;
-$this->config = $this->hasConfig() ? $this->getConfig() : [];
-
+        $this->config = $this->hasConfig() ? $this->getConfig() : [];
     }
 
 
-    public function getPrimaryColumn(): string {
+    public function getPrimaryColumn(): string
+    {
         $table = $this->model->getTable();
         $primaryKey = $this->model->getKeyName();
-        return $table. '.'. $primaryKey;
+        return $table . '.' . $primaryKey;
     }
 
     /**
@@ -166,8 +166,11 @@ $this->config = $this->hasConfig() ? $this->getConfig() : [];
             return;
         }
 
-        $connection
-            ->getDoctrineSchemaManager()
+        $schema = method_exists($connection, 'createSchemaManager')
+            ? $connection->createSchemaManager()
+            : $connection->getDoctrineSchemaManager();
+
+        $schema
             ->getDatabasePlatform()
             ->registerDoctrineTypeMapping('enum', 'string');
     }
